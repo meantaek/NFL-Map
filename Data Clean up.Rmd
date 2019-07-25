@@ -1,0 +1,33 @@
+---
+title: "nfl players"
+author: "Meantaek Hwang"
+date: "7/24/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(jsonlite)
+```
+
+```{r}
+#read in data
+players = fromJSON("/Users/Meantaek/Documents/NFLData/profiles.json")
+
+#Clean up data that does not specify birth place
+player_birth = subset(players, birth_place != "NA")
+
+#Initialize lattitude and longitude coordinate columns
+player_birth$birth_lat = NA
+player_birth$birth_lon = NA
+
+#Extract birth place coordinates using geocode
+for (i in 1:nrow(player_birth)) {
+  code = geocode(player_birth[i,]$birth_place, source="dsk")
+  player_birth[i,]$birth_lat = code$lat
+  player_birth[i,]$birth_lon = code$lon
+}
+
+#Export the csv file for simple future use
+write.csv(player_birth, file="/Users/Meantaek/Documents/NFLData/player_birth.csv")
+```
+
